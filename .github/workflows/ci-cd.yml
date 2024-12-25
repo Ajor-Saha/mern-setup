@@ -1,0 +1,64 @@
+name: MERN Stack Build Pipeline
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    name: Build MERN Stack
+    runs-on: ubuntu-latest
+
+    steps:
+    # Checkout repository
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    # Setup Node.js for the frontend
+    - name: Set up Node.js for Frontend
+      uses: actions/setup-node@v3
+      with:
+        node-version: 18
+        working-directory: client
+
+    # Setup Node.js for the backend
+    - name: Set up Node.js for Backend
+      uses: actions/setup-node@v3
+      with:
+        node-version: 18
+        working-directory: server
+
+    # Install dependencies for the frontend
+    - name: Install Frontend Dependencies
+      run: npm install
+      working-directory: client
+
+    # Install dependencies for the backend
+    - name: Install Backend Dependencies
+      run: npm install
+      working-directory: server
+
+    # Build the frontend
+    - name: Build Frontend
+      run: npm run build
+      working-directory: client
+
+    # Lint or compile the backend
+    - name: Lint Backend
+      run: npm run lint
+      working-directory: server
+      continue-on-error: true # If linting is optional
+
+    # Test backend
+    - name: Run Backend Tests
+      run: npm test
+      working-directory: server
+      continue-on-error: true # Make this optional if needed
+
+    # Upload build artifacts for frontend
+    - name: Upload Frontend Build Artifacts
+      uses: actions/upload-artifact@v3
+      with:
+        name: client-build
+        path: client/build
